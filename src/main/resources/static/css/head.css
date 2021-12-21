@@ -1,0 +1,57 @@
+			.navbar
+			{
+				box-shadow: 0 0.25rem 0.125rem 0 rgb(0 0 0 / 3%);
+				z-index: 999;
+			}
+			
+			.nav-link
+			{
+				font-family: "微软雅黑";
+				font-size: 20px;
+			}
+			.fadeIn
+			{
+				-webkit-animation: fadeIn 3s;
+			}
+			
+			a:hover{text-decoration:none}
+			.btn-login
+			{
+				background-color: rgba(0,0,0,0.1);
+				border-radius: 12px;
+				border: 1px solid white;
+				transition: background-color 0.5s, border 0.5s;
+			}
+			
+			.btn-login:hover
+			{
+				background-color: dodgerblue;
+				border: 2px solid white;
+			}
+			
+			.btn-logout
+			{
+				background-color: rgba(0,0,0,0.1);
+				border-radius: 12px;
+				border: 1px solid white;
+				transition: background-color 0.5s, border 0.5s;
+			}
+			
+			.btn-logout:hover
+			{
+				background-color: dodgerblue;
+				color: white;
+			}
+			
+			.search-item:hover
+			{
+				background-color: dodgerblue;
+				color: white;
+			}
+			
+			#fooster_flex
+			{
+				position: absolute;
+				bottom: 10px;
+				font-family: "微软雅黑";
+			}

@@ -1,0 +1,70 @@
+			.btn2
+			{
+				outline: none;
+				display: inline-block;
+				font-weight: 400;
+				color: #212529;
+				text-align: center;
+				vertical-align: middle;
+				-webkit-user-select: none;
+				-moz-user-select: none;
+				-ms-user-select: none;
+				user-select: none;
+				background-color: transparent;
+				border: 1px solid transparent;
+				padding: .375rem .75rem;
+				font-size: 1rem;
+				line-height: 1.5;
+				border-radius: .25rem;
+				transition: color .15s ease-in-out,background-color .15s ease-in-out,border-color .15s ease-in-out,box-shadow .15s ease-in-out;
+			}
+			.btn:focus
+			{
+				visibility: hidden;
+			}
+			.unit-list
+			{
+				margin-bottom: 50px;
+				font-family: "微软雅黑";
+			}
+			.unit-item
+			{
+				padding-top: 32px;
+				position: relative;
+			}
+			.unit-title
+			{
+				overflow: hidden;
+				text-overflow: ellipsis; 
+				white-space: nowrap;
+			}
+			
+			.btn-unit-add
+			{
+				z-index: 999;
+				position: fixed;
+				right: 0px;
+				bottom: 0px;
+				outline: none;
+			}
+			.textEdit
+			{
+				outline:none;
+				border:none;
+			}
+			
+			.unit-btns
+			{
+				width: 120px;
+				font-size: 25px;
+				position: absolute;
+				top: 0;
+				right: 10px;
+				opacity: 0;
+			}
+			
+			
+			.unit-btn:hover
+			{
+				cursor: pointer;
+			}

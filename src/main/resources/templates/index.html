@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+	<head>
+		<meta charset="utf-8">
+		<title>旧的假的主页</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+		<link href="/bootstrap-4.6.0/css/bootstrap.min.css" rel="stylesheet">
+		<link href="/bootstrap-4.6.0/fontawesome/css/all.css" rel="stylesheet">
+		<link href="/css/animation.css" rel="stylesheet">
+		<link href="/css/head.css" rel="stylesheet">
+		<link href="/css/index.css" rel="stylesheet">
+		<link href="/css/background.css" rel="stylesheet">
+		<script src="/js/jquery-3.5.1.min.js"></script>
+		<script src="/bootstrap-4.6.0/js/bootstrap.min.js"></script>
+	</head>
+	<body>
+		<!--主显示页-->
+		<div class="main">
+		<!--顶部工具栏 -->
+		<div class="sirilahu-Top fadeIn">
+			<nav class="navbar navbar-expand-lg navbar-dark">
+				<a class="navbar-brand" href="/"><h2 class="text-white"  style="font-family: 'comic sans ms';">sirilahu.top</h2></a>
+				<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#collapsibleNavbar" style="background-color: #000000;">
+					<span class="navbar-toggler-icon"></span>
+				</button>
+				<div class="collapse navbar-collapse" id="collapsibleNavbar" th:object="${#authentication.authorities.toArray()[0]}">
+					<ul class="navbar-nav nav nav-pills mr-auto">
+						<li class="nav-item">
+							<a class="nav-link text-white" href="/recordProject/recordMan">记录</a>
+						</li>
+						<li class="nav-item">
+							<a class="nav-link text-white " id="userMan">账户管理</a>
+						</li>
+					</ul>
+					<!--登陆 登出按钮组-->
+					<a th:class="'btn text-white btn-login ' + (*{getAuthority().equals('ROLE_ANONYMOUS')}?'':'d-none')" id="login" data-toggle="modal" data-target="#login-form"><i class="fas fa-sign-in-alt"></i>&nbsp;登录</a>
+					<a th:class="'btn text-white btn-login ' + (*{getAuthority().equals('ROLE_ANONYMOUS')}?'d-none':'')" id="logout"><i class="fas fa-sign-in-alt"></i>&nbsp;登出</a>
+				</div>
+			</nav>
+		</div>
+			
+			<div class="container-fluid sirialhu-Text d-none d-lg-block fadeIn rounded-circle">
+				<div class="row offset-7">
+					<div class="card">
+						<div class="card-body"><h1 class="text-white text-center"  style="font-family: 'comic sans ms';">Record Progress</h1></div>
+						<div class="card-footer"><i class="fas fa-fish text-white fish-icon" style="font-size: 80px;"></i></div>
+					</div>
+				</div>
+			</div>
+			
+	</div>
+		
+	<div id="fooster_flex" class="container-fluid d-flex justify-content-center">
+		<div id="fooster"><a class="text-white" href="https://beian.miit.gov.cn">渝ICP备2021000409号</a></div>
+	</div>
+	
+	<!--登陆模态框-->
+	<div class="modal fade" id="login-form">
+	  <div class="modal-dialog">
+	    <div class="modal-content">
+	 
+	      <!-- 模态框头部 -->
+	      <div class="modal-header">
+	        <h4 class="modal-title text-primary">登录</h4>
+	        <button type="button" class="close" data-dismiss="modal">×</button>
+	      </div>
+	 
+	      <!-- 模态框主体 -->
+	      <div class="modal-body">
+	        <form aciton="#" method="post">
+				<div class="form-group">
+					<label for="username">账号:</label>
+				    <input type="text" class="form-control" name="username" id="username" placeholder="请输入账号" required>
+				</div>
+				<div class="form-group">
+					<label for="password">密码:</label>
+				    <input type="password" class="form-control" name="password" id="password" placeholder="请输入密码" required>
+				</div>
+				<span class="btn btn-primary" id="btn-login-submit">提交</span>
+			</form>
+	      </div>
+	 
+	    </div>
+	  </div>
+	</div>
+	<!--密码修改模态框-->
+	<div class="modal fade" id="userMan-form">
+	  <div class="modal-dialog">
+	    <div class="modal-content">
+	 
+	      <!-- 模态框头部 -->
+	      <div class="modal-header">
+	        <h4 class="modal-title text-primary">用户管理</h4>
+	        <button type="button" class="close" data-dismiss="modal">×</button>
+	      </div>
+	 
+	      <!-- 模态框主体 -->
+	      <div class="modal-body">
+	        <form aciton="#" method="post">
+				<div class="form-group">
+					<label for="origin_password">原密码:</label>
+				    <input type="password" class="form-control" name="origin_password" id="origin_password" placeholder="请输入原始密码" required>
+				</div>
+				<div class="form-group">
+					<label for="new_password">新密码:</label>
+				    <input type="password" class="form-control" name="new_password" id="new_password" placeholder="请输入新密码" required>
+				</div>
+				
+				<div class="form-group">
+					<label for="con_password">确认密码:</label>
+				    <input type="password" class="form-control" name="con_password" id="con_password" placeholder="确认密码">
+				</div>
+
+				<span class="btn btn-primary" id="btn-pass-submit">提交</span>
+			</form>
+	      </div>
+	 
+	    </div>
+	  </div>
+	</div>
+	</body>
+
+	<script src="/layer/layer.js"></script>
+	<script th:inline="javascript" src="/js/index.js"></script>
+</html>

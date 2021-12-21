@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+	<head>
+		<meta charset="utf-8">
+		<title>记录编辑</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+		<link href="/bootstrap-4.6.0/css/bootstrap.min.css" rel="stylesheet">
+		<link href="/bootstrap-4.6.0/fontawesome/css/all.css" rel="stylesheet">
+		<link href="/css/animation.css" rel="stylesheet">
+		<link href="/css/head.css" rel="stylesheet">
+		<link href="/css/recordEdit.css" rel="stylesheet">
+		<script src="/js/jquery-3.5.1.min.js"></script>
+		<script src="/js/popper.min.js"></script>
+		<script src="/bootstrap-4.6.0/js/bootstrap.min.js"></script>
+	</head>
+	<body>
+		<!--头部导航栏-->
+		<div class="sirilahu-Top container-fluid"></div>
+		
+		<!--编辑区域-->
+		<div class="container-fluid p-0">
+			
+			<!--导航栏-->
+			<div id="section-list">
+				 <!--导航栏标题-->
+				 <h5 id="list-title" class="d-flex justify-content-center text-primary flex-nowrap" th:jump="@{/recordProject/recordMan}" title="返回笔记本区">
+					<i class="fab fa-pagelines pt-1"></i>&nbsp;<span style="overflow: hidden;text-overflow: ellipsis; white-space: nowrap;" th:text="${record.r_name}">标题</span>
+					<span class="d-none" id="r_id" th:text="${record.r_id}">r_id</span>
+				 </h5>
+				 <!--导航栏内容-->
+				<div class="card border-0 overflow-hidden section" th:each="section:${record.sections}">
+					<div class="section-item card-header border-0" th:id="|S${section.s_id}|">
+					  <h2 class="mb-0">	
+						<button class="btn2 btn-section btn-block d-flex text-left p-0 justify-content-between text-primary collapsed" type="button" data-toggle="collapse" th:data-target="'#S'+${section.s_id}+'-collapse'" th:aria-expanded="(${preModel.s_id} eq ${section.s_id})?'true':'false'" th:aria-controls="|S${section.s_id}-collapse|">
+						  <span class="s_name" style="overflow: hidden;text-overflow: ellipsis; white-space: nowrap;"><i class="fas fa-puzzle-piece"></i>&nbsp;<span class="section-title" th:text="${section.s_title}">spring结构</span></span>
+						  <span><i class="fas fa-caret-down"></i></span>
+						</button>
+					  </h2>
+					  
+					  <div class="section-btns d-flex text-primary justify-content-between border-bottom border-info">
+						<span class="s_id d-none" th:text="${section.s_id}">s_id</span>
+						<span class="btn-close" onclick="" title="删除分区"><i class="fas fa-times-circle"></i></span>
+						<span class="btn-fix" title="修改分区"><i class="fa fa-wrench"></i></span>
+						<span class="btn-add" title="添加页"><i class="fas fa-plus-circle"></i></span>
+					  </div>
+					</div>
+					
+					<div th:id="|S${section.s_id}-collapse|" th:class="'collapse ' + ((${preModel.s_id} eq ${section.s_id})?'show':'')" th:aria-labelledby="'S'+${section.s_id}" data-parent="#section-list">
+						<div class="card-body p-0 border-0">
+							<ul class="list-group">
+								<!--页显示项目-->
+								<li th:class="'pageItem list-group-item d-flex justify-content-between border-0 ' + (${preModel.p_id == page.p_id}?'pageItem-active':'')" th:each="page:${section.pages}">
+								  <span class=" p_name" style="overflow: hidden;text-overflow: ellipsis; white-space: nowrap;" th:text="${page.p_title}">First item</span>
+								  <!--页操作按钮组-->
+								  <span class="text-white w-25 d-flex justify-content-between">
+									<span class="p_id d-none" th:text="${page.p_id}">p_id</span>
+									<span class="btn-page-fix" title="修改页"><i class="fa fa-wrench"></i></span>
+									<span class="btn-page-close" title="删除页"><i class="fas fa-times-circle"></i></span>
+								  </span>
+								</li>
+							</ul>
+						</div>
+					</div>
+				</div>
+				<!--无查询结果显示-->
+				<div id="no-result" th:class="${record.sections.size()} le 0 ? '':'d-none'">
+					<div class="d-flex col-12 justify-content-center" style="background-color: lightgrey;" th:if="${record.sections.size()} <= 0">
+						<h5 class="text-primary"><i class="fas fa-info-circle"></i>&nbsp;无查询结果</h5>
+					</div>
+				</div>
+				<!--分区添加按钮-->
+				<span class="btn btn-section-add text-primary" title="添加分区"><i class="fas fa-plus-circle fa-2x"></i></span>
+			</div>
+			
+			<!--导航栏显示按钮-->
+			<div class="text-primary fa-2x d-sm-none">
+				<span id="btn-list" class="fa-stack">
+				  <i class="fa fa-circle fa-stack-2x"></i>
+				  <i class="fa fa-list fa-stack-1x fa-inverse"></i>
+				</span>
+			</div>
+			<!--页内容显示区-->
+			<div class="page-show">
+				<iframe th:src="${preModel.p_id == null}?'':'pageEdit?p_id='+${preModel.p_id} " width="100%" height="100%" frameborder="0" scrolling="auto"></iframe>
+			</div>
+			 
+		</div>
+		<!--页脚栏-->
+		<div id="fooster_flex" class="sirilahu-footer container-fluid d-flex justify-content-center pt-2"></div>
+		
+		<!--模板存放-->
+		<div class="d-none modal-zone">
+				<!--分区模板-->
+			<div class="card border-0 overflow-hidden section">
+				<div class="section-item card-header border-0" id="{s_id}">
+				  <h2 class="mb-0">	
+					<button class="btn2 btn-section btn-block d-flex text-left p-0 justify-content-between text-primary collapsed" type="button" data-toggle="collapse" data-target="#{s_id}-collapse" aria-expanded="false" aria-controls="{s_id}-collapse">
+					  <span class="s_name" style="overflow: hidden;text-overflow: ellipsis; white-space: nowrap;"><i class="fas fa-puzzle-piece"></i>&nbsp;<span class="section-title">{s_name}</span></span>
+					  <span><i class="fas fa-caret-down"></i></span>
+					</button>
+				  </h2>
+				  
+				  <div class="section-btns d-flex text-primary justify-content-between border-bottom border-info">
+					<span class="s_id d-none">{s_id}</span>
+					<span class="btn-close" onclick="" title="删除分区"><i class="fas fa-times-circle"></i></span>
+					<span class="btn-fix" title="修改分区"><i class="fa fa-wrench"></i></span>
+					<span class="btn-add" title="添加页"><i class="fas fa-plus-circle"></i></span>
+				  </div>
+				</div>
+				
+				<div id="{s_id}-collapse" class="collapse" aria-labelledby="{s_id}" data-parent="#section-list">
+					<div class="card-body p-0 border-0">
+						<ul class="list-group">
+							<!--页显示项目-->
+						</ul>
+					</div>
+				</div>
+			</div>
+			<!--页模板-->
+			<li class="pageItem list-group-item d-flex justify-content-between border-0" onclick="">
+			  <span class="p_name" style="overflow: hidden;text-overflow: ellipsis; white-space: nowrap;">{p_name}</span>
+			  <!--页操作按钮组-->
+			  <span class="text-white w-25 d-flex justify-content-between">
+				<span class="p_id d-none">{p_id}</span>
+				<span class="btn-page-fix" title="修改页"><i class="fa fa-wrench"></i></span>
+				<span class="btn-page-close" title="删除页"><i class="fas fa-times-circle"></i></span>
+			  </span>
+			</li>
+		</div>
+		
+		<!--js-->
+		<script src="/js/head.js"></script>
+		<script src="/layer/layer.js"></script>
+		<script src="/js/recordEdit.js"></script>
+	</body>
+</html>
