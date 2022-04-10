@@ -1,33 +1,45 @@
 package com.example.top_sirilahu.authentication;
 
+import com.example.top_sirilahu.util.JWTUtil;
+import io.jsonwebtoken.Claims;
+import org.springframework.core.log.LogMessage;
+import org.springframework.security.authentication.InternalAuthenticationServiceException;
+import org.springframework.security.authentication.event.InteractiveAuthenticationSuccessEvent;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter;
+import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
+import org.springframework.security.web.authentication.SavedRequestAwareAuthenticationSuccessHandler;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.util.Assert;
 import org.thymeleaf.util.StringUtils;
 
 import javax.annotation.Resource;
+import javax.servlet.FilterChain;
+import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 
+/**
+ * @Data: 2022/4/4
+ * @Des: 自定义登陆过滤器
+ */
 public class UserAuthenticationFilter extends AbstractAuthenticationProcessingFilter {
 
-    @Resource
-    SessionRegistry sessionRegistry;
 
     private String usernameParameter = "username";
     private String passwordParameter = "password";
-
-    public void setSessionRegistry(SessionRegistry sessionRegistry) {
-        this.sessionRegistry = sessionRegistry;
-    }
-
+    //拦截路径
     public UserAuthenticationFilter() {
-        super(new AntPathRequestMatcher("/authentication/login"));
+        super(DEFAULT_ANT_PATH_REQUEST_MATCHER);
     }
+
+    private static final AntPathRequestMatcher DEFAULT_ANT_PATH_REQUEST_MATCHER = new AntPathRequestMatcher("/authentication/login", "POST");
 
     public void setUsernameParameter(String usernameParameter) {
         Assert.hasText(usernameParameter, "usernameParameter 不允许为空值");
@@ -38,6 +50,7 @@ public class UserAuthenticationFilter extends AbstractAuthenticationProcessingFi
         Assert.hasText(passwordParameter, "passwordParameter 不允许为空值");
         this.passwordParameter = passwordParameter;
     }
+
 
     @Override
     public Authentication attemptAuthentication(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) throws AuthenticationException {
@@ -59,9 +72,6 @@ public class UserAuthenticationFilter extends AbstractAuthenticationProcessingFi
 
         //进行认证并获取认证完成的认证对象
         Authentication verifiedAuthentication = this.getAuthenticationManager().authenticate(userAuthentication);
-
-        //注册session
-        sessionRegistry.registerNewSession(httpServletRequest.getSession().getId(), verifiedAuthentication.getPrincipal());
 
         return verifiedAuthentication;
     }

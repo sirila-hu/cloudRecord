@@ -1,25 +1,30 @@
 package com.example.top_sirilahu.controller;
 
+import com.alibaba.fastjson.JSON;
 import com.example.top_sirilahu.entity.recordEntity;
 import com.example.top_sirilahu.entity.userEntity;
+import com.example.top_sirilahu.jsonBody.statusJSON;
 import com.example.top_sirilahu.service.recordService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
+import org.thymeleaf.util.StringUtils;
 
-@Controller
-@RequestMapping("/recordProject/recordMan")
+import javax.validation.Valid;
 
-public class recordController
-{
+@RestController
+@RequestMapping(value = "/recordProject/recordMan", produces = "application/json;charset=UTF-8")
+@CrossOrigin(origins = "*")
+public class recordController {
     private recordService reService;
 
-    public recordController() {}
+    public recordController() {
+    }
 
     @Autowired
     public recordController(recordService reService) {
@@ -27,48 +32,57 @@ public class recordController
     }
 
     @GetMapping
-    public String processRecordMan(@RequestParam(name = "page", defaultValue = "1") int page, Model model, @AuthenticationPrincipal userEntity user)
-    {
-        //执行渲染
-        reService.getRecords(user, page, model);
-        return "recordMan";
+    public String processRecordMan(@RequestParam(name = "page", defaultValue = "1") int page, @AuthenticationPrincipal userEntity user) {
+        //返回渲染数据
+        return reService.getRecords(user, page);
     }
 
-    @RequestMapping("/addRecord")
-    public String addRecord(@RequestParam(name = "page", defaultValue = "1") int page, Model model, recordEntity record,  @AuthenticationPrincipal userEntity user)
-    {
-        //添加记录
-        reService.addRecord(record, user);
+    @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
+    public String addRecord(@RequestParam(name = "page", required = true, defaultValue = "1") int page, recordEntity record, @AuthenticationPrincipal userEntity user) {
+        try {
+            //添加记录
+            reService.addRecord(record, user);
+        } catch (Exception e) {
+            return JSON.toJSONString(new statusJSON(1, "添加失败"));
+        }
 
-        return String.format("redirect:/recordProject/recordMan?page=%d", page);
+        //返回添加后的本页信息
+        return reService.getRecords(user, page);
     }
 
-    @RequestMapping("/editRecord")
-    public String editRecord(@RequestParam(name = "page", defaultValue = "1") int page, recordEntity record)
-    {
+    @PutMapping("/{r_id}")
+    public String editRecord(@PathVariable("r_id") String r_id, @RequestParam(name = "r_name", required = true) String r_name) {
+        if (StringUtils.isEmptyOrWhitespace(r_name)) {
+            String responseJSON = JSON.toJSONString(new statusJSON(1, "必要参数不能为空"));
+            return responseJSON;
+        }
+        String json = JSON.toJSONString(new statusJSON(0, "修改成功"));
         try {
             //修改记录
-            reService.editRecord(record.getR_name(), record.getR_id());
-        }catch (EmptyResultDataAccessException e)
-        {
+            reService.editRecord(r_name, r_id);
+        } catch (EmptyResultDataAccessException e) {
             e.printStackTrace();
-        }finally {
-            return String.format("redirect:/recordProject/recordMan?page=%d", page);
+            json = JSON.toJSONString(new statusJSON(1, e.getMessage()));
+        } finally {
+            return json;
         }
     }
 
-    @RequestMapping("/delRecord")
-    public String delRecord(@RequestParam(name = "page", defaultValue = "1") int page, recordEntity record)
-    {
+    @DeleteMapping("/{r_id}")
+    public String delRecord(@PathVariable("r_id") String r_id, @RequestParam(name = "page", required = true, defaultValue = "1") int page, @AuthenticationPrincipal userEntity user) {
         try {
             //删除记录
-            reService.delRecord(record.getR_id());
-        }catch (EmptyResultDataAccessException e)
-        {
+            reService.delRecord(r_id);
+        } catch (EmptyResultDataAccessException e) {
             e.printStackTrace();
-        }finally {
-            return String.format("redirect:/recordProject/recordMan?page=%d", page);
+            return JSON.toJSONString(new statusJSON(1, e.getMessage()));
+        } catch (Exception e) {
+            e.printStackTrace();
         }
+        //返回删除后的本页信息
+        return reService.getRecords(user, page);
+
     }
 
 }

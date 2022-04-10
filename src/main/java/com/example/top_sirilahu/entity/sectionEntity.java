@@ -1,8 +1,11 @@
 package com.example.top_sirilahu.entity;
 
+import com.alibaba.fastjson.annotation.JSONField;
+
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -11,39 +14,32 @@ public class sectionEntity
 {
     @Id
     @Column(name = "s_id")
+    @JSONField(name = "s_id")
     private String s_id;
 
     @NotBlank(message = "标题不能为空")
     @Size(max = 45, message = "标题字数不能大于45")
     @Column(name = "s_title")
+    @JSONField(name = "s_title")
     private String s_title;
 
     @Column(name = "s_date")
+    @JSONField(name = "s_date")
     private String s_date;
 
     @Column(name = "s_record")
-    @NotBlank
     private String s_record;
 
     @ManyToOne
     @JoinColumn(name = "s_record", insertable = false, updatable = false)
+    @JSONField(name = "s_record")
     private recordEntity record;
 
     @OneToMany(mappedBy = "section", fetch = FetchType.LAZY)
     private List<pageEntity> pages;
 
-    //用于前端渲染
-    private boolean isExpand = false;
-
     public sectionEntity() {
-    }
-
-    public boolean isExpand() {
-        return isExpand;
-    }
-
-    public void setExpand(boolean expand) {
-        isExpand = expand;
+        this.pages = new ArrayList<>();
     }
 
     public sectionEntity(String s_id, String s_title, String s_date, String s_record) {

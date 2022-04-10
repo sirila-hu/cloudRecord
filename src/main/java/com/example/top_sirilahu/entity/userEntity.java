@@ -1,5 +1,6 @@
 package com.example.top_sirilahu.entity;
 
+import com.alibaba.fastjson.annotation.JSONField;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -15,18 +16,19 @@ import java.util.List;
 public class userEntity implements UserDetails
 {
     @Id
+    @JSONField(name = "UID")
     private long UID;
 
-    @NotNull
+    @JSONField(name = "username")
     private String username;
 
-    @NotNull
+    @JSONField(serialize=false)
     private String password;
 
-    @NotNull
+    @JSONField(name = "authority")
     private String authority;
 
-    @NotNull
+    @JSONField(name = "status")
     private byte status;
 
     public userEntity() {
@@ -69,16 +71,19 @@ public class userEntity implements UserDetails
     }
 
     @Override
+    @JSONField(serialize=false)
     public boolean isAccountNonExpired() {
         return true;
     }
 
     @Override
+    @JSONField(serialize=false)
     public boolean isAccountNonLocked() {
         return true;
     }
 
     @Override
+    @JSONField(serialize=false)
     public boolean isCredentialsNonExpired() {
         return true;
     }
@@ -94,6 +99,7 @@ public class userEntity implements UserDetails
     }
 
     @Override
+    @JSONField(serialize=false)
     public Collection<? extends GrantedAuthority> getAuthorities() {
         List<GrantedAuthority> authorities = new ArrayList<>();
         authorities.add(new SimpleGrantedAuthority("ROLE_" + authority));

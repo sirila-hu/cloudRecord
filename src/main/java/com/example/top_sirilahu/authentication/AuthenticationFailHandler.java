@@ -1,5 +1,7 @@
 package com.example.top_sirilahu.authentication;
 
+import com.alibaba.fastjson.JSON;
+import com.example.top_sirilahu.jsonBody.statusJSON;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.AuthenticationException;
@@ -14,13 +16,10 @@ import java.io.IOException;
 @Component
 public class AuthenticationFailHandler extends SimpleUrlAuthenticationFailureHandler
 {
-    @Autowired
-    private ObjectMapper objectMapper;
-
     @Override
     public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response, AuthenticationException exception) throws IOException, ServletException {
-        response.setStatus(500);
+        response.setStatus(403);
         response.setContentType("application/json;charset=UTF-8");
-        response.getWriter().println(objectMapper.writeValueAsString(exception));
+        response.getWriter().println(JSON.toJSONString(new statusJSON(1, exception.getMessage())));
     }
 }

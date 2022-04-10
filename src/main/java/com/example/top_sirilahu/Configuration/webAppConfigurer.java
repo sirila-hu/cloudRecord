@@ -9,8 +9,8 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @Configuration
 public class webAppConfigurer implements WebMvcConfigurer
 {
-    @Value("${unit.imgupload.imgUploadPath}")
-    private String imgUploadPath;
+    @Value("${file.upload.rootPath}")
+    private String uploadPath;
 
 
     //视图控制器设置
@@ -21,7 +21,7 @@ public class webAppConfigurer implements WebMvcConfigurer
 
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
-        registry.addResourceHandler("/recordProject/img/**")
-                .addResourceLocations("file:"+imgUploadPath);
+        registry.addResourceHandler("/recordProject/static/**")
+                .addResourceLocations("file:"+ uploadPath);
     }
 }

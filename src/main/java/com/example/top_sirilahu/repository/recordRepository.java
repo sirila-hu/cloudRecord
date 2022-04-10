@@ -29,5 +29,5 @@ public interface recordRepository extends CrudRepository<recordEntity, String>, 
     @Transactional
     @Modifying(clearAutomatically = true)
     @Query(value = "update tb_record set r_name=?1 where r_id=?2", nativeQuery = true)
-    public void update(String rName, String rId);
+    public int update(String rName, String rId);
 }
