@@ -15,8 +15,10 @@ import java.util.Map;
 public class JWTUtil {
 
     private static String key;
-    //token有效日期
-    private static int expDay = 3;
+    //acsess_token有效日期
+    private static int expDay = 1;
+    //refresh_token有效日期
+    private static int refreshDay = 3;
 
     @Value("${jwt.key}")
     public void setKey(String key) {
@@ -24,11 +26,47 @@ public class JWTUtil {
     }
 
     /**
-     * - 创建jwt -
+     * - 创建access_token -
      * @param user 用户认证对象
      * @return 创建的token字符串
      */
     public static String createJWT(userEntity user) {
+
+        //转化user对象
+        Map<String, Object> claims = new HashMap<>();
+        claims.put("user", JSON.toJSONString(user));
+
+        //调用方法船舰jwt对象
+        String token =  createJWT(false, claims);
+
+        return  token;
+    }
+
+    /**
+     * - 创建refresh_token -
+     * @param UID 用户的UID
+     * @return 创建的token字符串
+     */
+    public static String createRefresh(long UID)
+    {
+        //转化user对象
+        Map<String, Object> claims = new HashMap<>();
+        claims.put("UID", UID);
+
+        //调用方法船舰jwt对象
+        String token =  createJWT(true, claims);
+
+        return  token;
+    }
+
+    /**
+     * - 创建jwt核心方法 -
+     * @param isRefresh 是否是refresh_token创建
+     * @param claims 负载中填入的自定义信息
+     * @return
+     */
+    private static String createJWT(boolean isRefresh, Map<String, Object> claims)
+    {
         //创建时间对象
         Calendar calendar = Calendar.getInstance();
 
@@ -36,12 +74,9 @@ public class JWTUtil {
         String JWT_ID = String.valueOf(calendar.getTimeInMillis());
 
         //计算token到期时间戳
-        calendar.add(Calendar.DAY_OF_MONTH, expDay);
+        calendar.add(Calendar.DAY_OF_MONTH, isRefresh ? refreshDay : expDay);
+//        calendar.set(Calendar.DAY_OF_MONTH, 15);
         Date expiration = calendar.getTime();
-
-        //转化user对象
-        Map<String, Object> claims = new HashMap<>();
-        claims.put("user", JSON.toJSONString(user));
 
         //创建并配置jwt对象
         JwtBuilder builder = Jwts.builder()
@@ -53,6 +88,12 @@ public class JWTUtil {
         return  builder.compact();
     }
 
+    /**
+     * - 解析jwt -
+     * @param jwt 待解析的jwt字符串
+     * @return 解析成功后获得的用户信息
+     * @throws Exception
+     */
     public static Claims parseJWT(String jwt) throws Exception {
         try {
             Claims claims = Jwts.parser()
@@ -61,7 +102,7 @@ public class JWTUtil {
             return claims;
         }catch (ExpiredJwtException expiredJwtException)
         {
-            throw new Exception("凭证已过期，请重新登陆");
+            throw new ExpiredJwtException( expiredJwtException.getHeader(),expiredJwtException.getClaims(),"凭证已过期，请重新登陆");
         }catch (UnsupportedJwtException unsupportedJwtException)
         {
             throw new Exception("凭证信息有误");

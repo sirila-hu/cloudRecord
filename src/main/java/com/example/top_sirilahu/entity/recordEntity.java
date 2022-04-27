@@ -6,8 +6,7 @@ import java.util.List;
 
 @Entity
 @Table(name = "tb_record")
-public class recordEntity
-{
+public class recordEntity {
     //记录编号
     @Id
     @NotNull

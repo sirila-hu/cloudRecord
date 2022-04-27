@@ -1,19 +1,21 @@
 package com.example.top_sirilahu.controller;
 
+import com.alibaba.fastjson.JSON;
+import com.example.top_sirilahu.VO.passwordVO;
 import com.example.top_sirilahu.entity.userEntity;
-import com.example.top_sirilahu.requestModel.PassChangeModel;
+import com.example.top_sirilahu.jsonBody.statusJSON;
 import com.example.top_sirilahu.service.userManService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 import org.thymeleaf.util.StringUtils;
 
-@Controller
-@RequestMapping("/userMan")
-public class UserManController
-{
+@RestController
+@RequestMapping(value = "/recordProject/user", produces = "application/json;charset=UTF-8")
+@CrossOrigin("*")
+public class UserManController {
     userManService userManService;
 
     public UserManController() {
@@ -24,29 +26,29 @@ public class UserManController
         this.userManService = userManService;
     }
 
-    @ResponseBody
-    @RequestMapping(value = "/changePassword",produces = "application/json;charset=UTF-8")
-    public String changePassword(@AuthenticationPrincipal userEntity user, PassChangeModel passChangeModel)
+    @PutMapping(value = "/password")
+    public ResponseEntity changePassword(@AuthenticationPrincipal userEntity user, passwordVO password)
     {
-        String message = "";
+        String resultJSON = "";
+        HttpStatus httpStatus = HttpStatus.OK;
         try {
-            userManService.changePass(user, passChangeModel);
-            message = "{\"status\":0}";
+            userManService.changePass(user, password);
+            resultJSON = JSON.toJSONString(new statusJSON(0, "密码更改成功"));
         }catch (Exception e)
         {
-            message = "{\"status\":1, \"message\":\"发生未知错误\"}";
+            e.printStackTrace();
+
+            String message = "发生未知错误";
             if (!StringUtils.isEmptyOrWhitespace(e.getMessage()))
             {
-                message = String.format("{\"status\":1,\"message\":\"%s\"}", e.getMessage());
+                message = e.getMessage();
             }
-            else
-            {
-                e.printStackTrace();
-            }
+            resultJSON = JSON.toJSONString(new statusJSON(1, message));
+            httpStatus = HttpStatus.INTERNAL_SERVER_ERROR;
         }
         finally
         {
-            return message;
+            return new ResponseEntity<>(resultJSON,httpStatus);
         }
     }
 }

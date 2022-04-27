@@ -5,29 +5,36 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
 @Entity
+@Table(name = "tb_user")
 public class userEntity implements UserDetails
 {
     @Id
     @JSONField(name = "UID")
     private long UID;
 
+    @Column(name = "username")
     @JSONField(name = "username")
     private String username;
 
+    @Column(name = "password")
     @JSONField(serialize=false)
     private String password;
 
+    @Column(name = "authority")
     @JSONField(name = "authority")
     private String authority;
 
+    @Column(name = "status")
     @JSONField(name = "status")
     private byte status;
 

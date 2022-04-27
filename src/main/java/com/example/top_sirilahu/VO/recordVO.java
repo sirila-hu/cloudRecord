@@ -72,6 +72,25 @@ public class recordVO {
         return recordVOS;
     }
 
+    /**
+     * - 批量转换实体对象（不包括sections） -
+     * @param entities 待批量转换的实体对象
+     * @return
+     */
+    public static List<recordVO> excludeSections(List<recordEntity> entities)
+    {
+        List<recordVO> recordVOS = new ArrayList<>();
+
+        //遍历转换
+        for (recordEntity entity: entities)
+        {
+            entity.setSections(null);
+            recordVOS.add(new recordVO(entity));
+        }
+
+        return recordVOS;
+    }
+
     public List<sectionVO> getSections() {
         return sections;
     }

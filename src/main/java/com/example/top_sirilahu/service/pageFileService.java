@@ -7,6 +7,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.TransactionDefinition;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.thymeleaf.util.StringUtils;
 
@@ -32,7 +34,7 @@ public class pageFileService {
      *
      * @param pageContent 待保存的页文件内容
      * @param p_id        页ID 用于生成页文件的文件名和更新页信息
-     * @return 页文件的保存路径
+     * @return            页文件的保存路径
      * @throws Exception 可能出现IO错误或数据库相关错误
      */
     @Transactional(rollbackFor = Exception.class)
@@ -60,10 +62,11 @@ public class pageFileService {
 
     /**
      * 删除页服务
+     * 考虑到细粒度删除的问题，该逻辑使用独立的事务
      * @param page 待删除的页对象
      * @throws IOException
      */
-    @Transactional(rollbackFor = Exception.class)
+    @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRES_NEW)
     public void delPage(pageEntity page) throws IOException {
         //拼接删除路径
         String fullPath = rootPath + page.getP_path();

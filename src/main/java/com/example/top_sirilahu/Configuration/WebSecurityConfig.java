@@ -24,6 +24,9 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     @Autowired
     UserAuthenticationProvider userAuthProvider;
 
+    //创建jwt认证过滤器
+    @Autowired
+    userTokenFilter userTokenFilter;
 
     //安全规则配置
     @Override
@@ -36,8 +39,6 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         userAuthFilter.setAuthenticationSuccessHandler(successHandler);
         userAuthFilter.setAuthenticationFailureHandler(failHandler);
 
-        //创建自定义认证过滤器
-        userTokenFilter userTokenFilter = new userTokenFilter();
         http.headers().frameOptions().disable();
         //禁用session
         http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);

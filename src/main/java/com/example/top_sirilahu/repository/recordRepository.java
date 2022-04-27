@@ -1,6 +1,11 @@
 package com.example.top_sirilahu.repository;
 
 import com.example.top_sirilahu.entity.recordEntity;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -22,7 +27,7 @@ public interface recordRepository extends CrudRepository<recordEntity, String>, 
     int countByRCreator(long rCreator);
 
     //获取用户的记录本
-    @Query(value = "select * from tb_record r where r.r_creator = ?1 order by r_date desc limit ?2, ?3", nativeQuery = true)
+    @Query(value = "select * from tb_record r where r.r_creator = ?1 order by r_date desc limit ?4, ?5", nativeQuery = true)
     List<recordEntity> getRecordsPagination(long rCreator, int start, int offset);
 
     //修改记录本

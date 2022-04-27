@@ -12,13 +12,6 @@ public class webAppConfigurer implements WebMvcConfigurer
     @Value("${file.upload.rootPath}")
     private String uploadPath;
 
-
-    //视图控制器设置
-    @Override
-    public void addViewControllers(ViewControllerRegistry registry) {
-        registry.addViewController("/").setViewName("index");
-    }
-
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
         registry.addResourceHandler("/recordProject/static/**")

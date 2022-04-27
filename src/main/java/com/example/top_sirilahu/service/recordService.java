@@ -1,6 +1,8 @@
 package com.example.top_sirilahu.service;
 
 import com.alibaba.fastjson.JSON;
+import com.example.top_sirilahu.Exception.RunException;
+import com.example.top_sirilahu.VO.pageSortVO;
 import com.example.top_sirilahu.VO.recordVO;
 import com.example.top_sirilahu.entity.pageEntity;
 import com.example.top_sirilahu.entity.recordEntity;
@@ -12,11 +14,16 @@ import com.example.top_sirilahu.repository.recordRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.thymeleaf.util.StringUtils;
 
 import javax.persistence.NoResultException;
+import javax.persistence.criteria.*;
 import java.util.List;
 import java.util.Optional;
 
@@ -28,16 +35,18 @@ public class recordService {
     private recordRepository recordRepo;
     private pageRepository pageRepo;
 
+
     //页文件管理逻辑
     private pageFileService pageFileSe;
 
     public recordService() {
     }
+
     @Autowired
-    public recordService(recordRepository recordRepo, pageRepository pageRepo, pageFileService pageFileService) {
+    public recordService(recordRepository recordRepo, pageRepository pageRepo, pageFileService pageFileSe) {
         this.recordRepo = recordRepo;
         this.pageRepo = pageRepo;
-        this.pageFileSe = pageFileService;
+        this.pageFileSe = pageFileSe;
     }
 
     public void setPageSize(int pageSize) {
@@ -66,43 +75,66 @@ public class recordService {
     }
 
     //获取用户的记录本(分页显示)
-    public String getRecords(userEntity user, int page) {
-        List records = null;
-        //进行分页计算
-        int count = getCount(user.getUID());
-        int pageCount = 1;
+    public String getRecords(userEntity user, pageSortVO pageSort) throws RunException {
+        Page<recordEntity> records = null;
+        List recordVOS = null;
         try {
-
-            if (count > 0) {
-                pageCount = (int) Math.ceil((double) count / (double) pageSize);
-            }else{
-                throw new NoResultException("[info]没有笔记本记录");
-            }
-
-            //检查查询参数是否异常
-            if (page > pageCount) {
-                throw new Exception("[erro]查询参数异常");
-            }
-
             //获取用户的分页记录本
-            records = recordRepo.getRecordsPagination(user.getUID(), (page - 1) * pageSize, pageSize);
+            records = customSortQuery(user.getUID(), pageSort, pageSize);
 
             //业务对象转换
-            records = recordVO.convertToVO(records);
-        }catch (NoResultException ne) {
+            recordVOS = recordVO.excludeSections(records.getContent());
+        } catch (NoResultException ne) {
             //无影响异常
             return JSON.toJSONString(new statusJSON(0, ne.getMessage()));
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
+            e.printStackTrace();
             String msg = "查询发生错误";
             if (!StringUtils.isEmptyOrWhitespace(e.getMessage())) {
                 msg = e.getMessage();
             }
-            return JSON.toJSONString(new statusJSON(1, msg));
+            throw new RunException(msg, JSON.toJSONString(new statusJSON(1, msg)));
         }
 
         //返回json
-        return JSON.toJSONString(new paginationJSON(0, pageCount, page, records));
+        return JSON.toJSONString(new paginationJSON(0, records.getTotalPages(), pageSort.getPage(), recordVOS));
+    }
+
+    /**
+     * - 用户自定义分页查询 -
+     * @param UID
+     * @param pageSort
+     * @param pageSize
+     * @return
+     */
+    private Page<recordEntity> customSortQuery(long UID, pageSortVO pageSort, int pageSize) {
+        //生成分页对象
+        PageRequest pageRequest = PageRequest.of(pageSort.getPage() - 1, pageSize);
+        //定义sql生成器
+        Specification specification = new Specification() {
+            @Override
+            public Predicate toPredicate(Root root, CriteriaQuery criteriaQuery, CriteriaBuilder criteriaBuilder) {
+                Path r_creator = root.get("r_creator");
+                Path orderField = root.get(pageSort.getOrderField());
+                //排序对象
+                Order order = null;
+
+                //筛选本用户的笔记本
+                Predicate predicate = criteriaBuilder.equal(r_creator.as(long.class), UID);
+
+                //判断选择何种排序方式
+                if (pageSort.isASC()) {
+                    order = criteriaBuilder.asc(orderField);
+                } else {
+                    order = criteriaBuilder.desc(orderField);
+                }
+                criteriaQuery.orderBy(order);
+
+                return criteriaQuery.where(predicate).getRestriction();
+            }
+        };
+
+        return recordRepo.findAll(specification, pageRequest);
     }
 
     //添加记录本
@@ -138,11 +170,9 @@ public class recordService {
     //删除记录本
     @Transactional(rollbackFor = Exception.class)
     public void delRecord(String r_id) throws Exception {
-        //获取其下的所有页
         List<pageEntity> pages = pageRepo.getPagesbyR_ID(r_id);
         //细粒度删除关联的页
-        for (pageEntity page : pages)
-        {
+        for (pageEntity page : pages) {
             pageFileSe.delPage(page);
         }
         //级联删除rocord

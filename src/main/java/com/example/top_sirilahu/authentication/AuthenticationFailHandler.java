@@ -18,7 +18,7 @@ public class AuthenticationFailHandler extends SimpleUrlAuthenticationFailureHan
 {
     @Override
     public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response, AuthenticationException exception) throws IOException, ServletException {
-        response.setStatus(403);
+        response.setStatus(401);
         response.setContentType("application/json;charset=UTF-8");
         response.getWriter().println(JSON.toJSONString(new statusJSON(1, exception.getMessage())));
     }

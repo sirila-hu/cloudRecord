@@ -1,6 +1,8 @@
 package com.example.top_sirilahu.controller;
 
 import com.alibaba.fastjson.JSON;
+import com.example.top_sirilahu.Exception.RunException;
+import com.example.top_sirilahu.VO.pageSortVO;
 import com.example.top_sirilahu.entity.recordEntity;
 import com.example.top_sirilahu.entity.userEntity;
 import com.example.top_sirilahu.jsonBody.statusJSON;
@@ -12,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.*;
 import org.thymeleaf.util.StringUtils;
 
@@ -32,14 +35,23 @@ public class recordController {
     }
 
     @GetMapping
-    public String processRecordMan(@RequestParam(name = "page", defaultValue = "1") int page, @AuthenticationPrincipal userEntity user) {
-        //返回渲染数据
-        return reService.getRecords(user, page);
+    public ResponseEntity processRecordMan(@Valid @ModelAttribute("pageSortVO") pageSortVO pageSort ,@AuthenticationPrincipal userEntity user, Errors errors) {
+        String resultJOSN = "";
+        HttpStatus httpStatus = HttpStatus.OK;
+        try {
+            resultJOSN = reService.getRecords(user, pageSort);
+        }catch (RunException e) {
+            httpStatus = HttpStatus.INTERNAL_SERVER_ERROR;
+            resultJOSN = e.getResultJSON();
+        }finally {
+            //返回渲染数据
+            return new ResponseEntity(resultJOSN, httpStatus);
+        }
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public String addRecord(@RequestParam(name = "page", required = true, defaultValue = "1") int page, recordEntity record, @AuthenticationPrincipal userEntity user) {
+    public String addRecord(@Valid pageSortVO pageSort, recordEntity record, @AuthenticationPrincipal userEntity user) throws RunException {
         try {
             //添加记录
             reService.addRecord(record, user);
@@ -48,7 +60,7 @@ public class recordController {
         }
 
         //返回添加后的本页信息
-        return reService.getRecords(user, page);
+        return reService.getRecords(user, pageSort);
     }
 
     @PutMapping("/{r_id}")
@@ -70,7 +82,7 @@ public class recordController {
     }
 
     @DeleteMapping("/{r_id}")
-    public String delRecord(@PathVariable("r_id") String r_id, @RequestParam(name = "page", required = true, defaultValue = "1") int page, @AuthenticationPrincipal userEntity user) {
+    public String delRecord(@PathVariable("r_id") String r_id, @Valid pageSortVO pageSort, @AuthenticationPrincipal userEntity user) throws RunException {
         try {
             //删除记录
             reService.delRecord(r_id);
@@ -81,8 +93,7 @@ public class recordController {
             e.printStackTrace();
         }
         //返回删除后的本页信息
-        return reService.getRecords(user, page);
-
+        return reService.getRecords(user, pageSort);
     }
 
 }

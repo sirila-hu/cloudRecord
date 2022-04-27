@@ -1,11 +1,14 @@
 package com.example.top_sirilahu.service;
 
+import com.example.top_sirilahu.entity.userEntity;
 import com.example.top_sirilahu.repository.userRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+
+import java.util.Optional;
 
 @Service
 public class AuthenticatService implements UserDetailsService
@@ -26,6 +29,18 @@ public class AuthenticatService implements UserDetailsService
         if (user != null)
         {
             return user;
+        }
+        else
+        {
+            throw new UsernameNotFoundException("该账户不存在");
+        }
+    }
+
+    public UserDetails loadUserByUID(long UID) throws UsernameNotFoundException {
+        Optional<userEntity> optional = userRepo.findById(UID);
+        if (optional.isPresent())
+        {
+            return optional.get();
         }
         else
         {

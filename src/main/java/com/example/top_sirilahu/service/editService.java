@@ -83,6 +83,7 @@ public class editService {
             s_id = String.format("%s-%d", section.getS_record(), Integer.parseInt(code[code.length - 1]) + 1);
         }
 
+        //设置分区编号
         section.setS_id(s_id);
 
         //保存section
@@ -120,7 +121,7 @@ public class editService {
     //添加页
     @Transactional
     public String addPage(pageEntity page) {
-        //生成分区编号
+        //生成页编号
         int count = pageRepo.countByP_section(page.getP_section());
         String p_id = String.format("%s-1", page.getP_section());
         if (count != 0) {
@@ -144,7 +145,7 @@ public class editService {
         }
     }
 
-    //删除页
+    //以p_id为根据删除页
     public void delPage(String p_id) throws IOException {
         Optional<pageEntity> optional = pageRepo.findById(p_id);
 
